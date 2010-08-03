@@ -1,0 +1,19 @@
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum
+=================================================================
+
+Websites across the world are increasing their use of the Portable Network
+Graphics imaging format, as a powerful and cross-platform way to represent
+images. With key features such as alpha blending, it is no surprise that many
+websites in countries such as China and India also use larger high-resolution
+PNG images on their sites. Increasingly these images are decoded by the mobile
+device, and typically also scaled down to fit the user's zoom selection on the
+device's browser.
+
+In order to improve the decode time, Qualcomm Innovation Center has optimized
+the PNG library found on many common OS platforms such as Web OS, Android, and
+Chrome OS. Our team re-implemented the png_read_filter_row() routine to utilize
+the DSP-like SIMD capabilities of the ARM NEON instruction set. It was then
+tuned for the specific VeNum hardware unit found as part of the CPU subsystem
+of the Qualcomm Snapdragon platform.
+
+This resulted in a range of 0-50% improvement in PNG decode times.

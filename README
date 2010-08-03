@@ -141,6 +141,7 @@ Files in this distribution:
       KNOWNBUG      =>  List of known bugs and deficiencies
       LICENSE       =>  License to use and redistribute libpng
       README        =>  This file
+      README-VeNum  =>  Describes VeNum optimizations
       TODO          =>  Things not implemented in the current library
       Y2KINFO       =>  Statement of Y2K compliance
       example.c     =>  Example code for using libpng functions
@@ -177,6 +178,7 @@ Files in this distribution:
        msvctest     =>  Builds and runs pngtest using a MSVC workspace
        pngminim     =>  Simple pnm2pngm and png2pnmm programs
        pngminus     =>  Simple pnm2png and png2pnm programs
+       pngneon      =>  VeNum optimizations to improve decode times
        pngsuite     =>  Test images
        visupng      =>  Contains a MSVC workspace for VisualPng
       projects      =>  Contains project files and workspaces for
