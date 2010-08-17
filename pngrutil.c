@@ -2933,42 +2933,31 @@ png_read_filter_row(png_structp png_ptr, png_row_infop row_info, png_bytep row,
 {
    png_debug(1, "in png_read_filter_row");
    png_debug2(2, "row = %lu, filter = %d", png_ptr->row_number, filter);
+
+#if defined(__ARM_HAVE_NEON)
+   png_read_filter_row_neon(row_info->rowbytes, row_info->pixel_depth, row, prev_row, filter);
+#else
    switch (filter)
    {
       case PNG_FILTER_VALUE_NONE:
          break;
       case PNG_FILTER_VALUE_SUB:
       {
-#if defined(__ARM_HAVE_NEON)
-          if( row_info->pixel_depth  == 24)
-#endif
-          {
-             png_uint_32 i;
-             png_uint_32 istop = row_info->rowbytes;
-             png_uint_32 bpp = (row_info->pixel_depth + 7) >> 3;
-             png_bytep rp = row + bpp;
-             png_bytep lp = row;
+         png_uint_32 i;
+         png_uint_32 istop = row_info->rowbytes;
+         png_uint_32 bpp = (row_info->pixel_depth + 7) >> 3;
+         png_bytep rp = row + bpp;
+         png_bytep lp = row;
 
-             for (i = bpp; i < istop; i++)
-             {
-                *rp = (png_byte)(((int)(*rp) + (int)(*lp++)) & 0xff);
-                rp++;
-             }
-          }
-#if defined(__ARM_HAVE_NEON)
-          else
-          {
-              png_read_filter_row_neon(row_info->rowbytes, row_info->pixel_depth, row, prev_row, filter);
-          }
-#endif
-
+         for (i = bpp; i < istop; i++)
+         {
+            *rp = (png_byte)(((int)(*rp) + (int)(*lp++)) & 0xff);
+            rp++;
+         }
          break;
       }
       case PNG_FILTER_VALUE_UP:
       {
-#if defined(__ARM_HAVE_NEON)
-         png_read_filter_row_neon(row_info->rowbytes, row_info->pixel_depth, row, prev_row, filter);
-#else
          png_uint_32 i;
          png_uint_32 istop = row_info->rowbytes;
          png_bytep rp = row;
@@ -2979,93 +2968,70 @@ png_read_filter_row(png_structp png_ptr, png_row_infop row_info, png_bytep row,
             *rp = (png_byte)(((int)(*rp) + (int)(*pp++)) & 0xff);
             rp++;
          }
-#endif
          break;
       }
       case PNG_FILTER_VALUE_AVG:
       {
-#if defined(__ARM_HAVE_NEON)
-         if (row_info->pixel_depth < 32)
-#endif
-         {
-            png_uint_32 i;
-            png_bytep rp = row;
-            png_bytep pp = prev_row;
-            png_bytep lp = row;
-            png_uint_32 bpp = (row_info->pixel_depth + 7) >> 3;
-            png_uint_32 istop = row_info->rowbytes - bpp;
+         png_uint_32 i;
+         png_bytep rp = row;
+         png_bytep pp = prev_row;
+         png_bytep lp = row;
+         png_uint_32 bpp = (row_info->pixel_depth + 7) >> 3;
+         png_uint_32 istop = row_info->rowbytes - bpp;
 
-            for (i = 0; i < bpp; i++)
-            {
-               *rp = (png_byte)(((int)(*rp) +
-                        ((int)(*pp++) / 2 )) & 0xff);
-               rp++;
-            }
-
-            for (i = 0; i < istop; i++)
-            {
-               *rp = (png_byte)(((int)(*rp) +
-                        (int)(*pp++ + *lp++) / 2 ) & 0xff);
-               rp++;
-            }
-         }
-#if defined(__ARM_HAVE_NEON)
-         else
+         for (i = 0; i < bpp; i++)
          {
-            png_read_filter_row_neon(row_info->rowbytes, row_info->pixel_depth, row, prev_row, filter);
+            *rp = (png_byte)(((int)(*rp) +
+               ((int)(*pp++) / 2 )) & 0xff);
+            rp++;
          }
-#endif
+
+         for (i = 0; i < istop; i++)
+         {
+            *rp = (png_byte)(((int)(*rp) +
+               (int)(*pp++ + *lp++) / 2 ) & 0xff);
+            rp++;
+         }
          break;
       }
       case PNG_FILTER_VALUE_PAETH:
       {
-#if defined(__ARM_HAVE_NEON)
-         if( row_info->pixel_depth < 32)
-#endif
+         png_uint_32 i;
+         png_bytep rp = row;
+         png_bytep pp = prev_row;
+         png_bytep lp = row;
+         png_bytep cp = prev_row;
+         png_uint_32 bpp = (row_info->pixel_depth + 7) >> 3;
+         png_uint_32 istop=row_info->rowbytes - bpp;
+
+         for (i = 0; i < bpp; i++)
          {
-            png_uint_32 i;
-            png_bytep rp = row;
-            png_bytep pp = prev_row;
-            png_bytep lp = row;
-            png_bytep cp = prev_row;
-            png_uint_32 bpp = (row_info->pixel_depth + 7) >> 3;
-            png_uint_32 istop=row_info->rowbytes - bpp;
+            *rp = (png_byte)(((int)(*rp) + (int)(*pp++)) & 0xff);
+            rp++;
+         }
 
-            for (i = 0; i < bpp; i++)
-            {
-               *rp = (png_byte)(((int)(*rp) + (int)(*pp++)) & 0xff);
-               rp++;
-            }
-
-            for (i = 0; i < istop; i++)   /* Use leftover rp,pp */
-            {
-               int a, b, c, pa, pb, pc, p;
-               a = *lp++;
-               b = *pp++;
-               c = *cp++;
-               p = b - c;
-               pc = a - c;
+         for (i = 0; i < istop; i++)   /* Use leftover rp,pp */
+         {
+            int a, b, c, pa, pb, pc, p;
+            a = *lp++;
+            b = *pp++;
+            c = *cp++;
+            p = b - c;
+            pc = a - c;
 #ifdef PNG_USE_ABS
-               pa = abs(p);
-               pb = abs(pc);
-               pc = abs(p + pc);
+            pa = abs(p);
+            pb = abs(pc);
+            pc = abs(p + pc);
 #else
-               pa = p < 0 ? -p : p;
-               pb = pc < 0 ? -pc : pc;
-               pc = (p + pc) < 0 ? -(p + pc) : p + pc;
+            pa = p < 0 ? -p : p;
+            pb = pc < 0 ? -pc : pc;
+            pc = (p + pc) < 0 ? -(p + pc) : p + pc;
 #endif
-               p = (pa <= pb && pa <= pc) ? a : (pb <= pc) ? b : c;
+            p = (pa <= pb && pa <= pc) ? a : (pb <= pc) ? b : c;
 
-               *rp = (png_byte)(((int)(*rp) + p) & 0xff);
-               rp++;
-            }
+            *rp = (png_byte)(((int)(*rp) + p) & 0xff);
+            rp++;
          }
-#if defined(__ARM_HAVE_NEON)
-         else
-         {
-            png_read_filter_row_neon(row_info->rowbytes, row_info->pixel_depth, row, prev_row, filter);
-         }
-#endif
          break;
       }
       default:
@@ -3073,6 +3039,7 @@ png_read_filter_row(png_structp png_ptr, png_row_infop row_info, png_bytep row,
          *row = 0;
          break;
    }
+#endif
 }
 
 #ifdef PNG_SEQUENTIAL_READ_SUPPORTED

@@ -51,7 +51,7 @@ include $(BUILD_HOST_STATIC_LIBRARY)
 
 ifeq ($(ARCH_ARM_HAVE_NEON),true)
    common_SRC_FILES += contrib/pngneon/png_read_filter_row_neon.s
-   LOCAL_CFLAGS += -D__ARM_HAVE_NEON
+   common_CFLAGS += -D__ARM_HAVE_NEON
 endif
 
 include $(CLEAR_VARS)
