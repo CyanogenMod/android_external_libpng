@@ -47,7 +47,7 @@ png_read_filter_row_neon:
 
         ldr        r12,[sp,#0]
 
-        cmp        r0,#0
+        cmp        r12,#0
         beq        DONE
 
         cmp        r12,#1
@@ -535,9 +535,6 @@ avg_filter:
       #;; r3 = previous row pointer
       #;; r12 = bpp = loop/pointer increment value
 
-      cmp        r1,r0
-      beq        DONE
-
       cmp        r12,#1
       beq        avg_filter_1bpp
 
@@ -563,6 +560,9 @@ avg_filter_exit:
       #;; AVG filter, 1 byte per pixel
       #;; ----------------------------
 avg_filter_1bpp:
+
+      cmp        r1,r0
+
       vld1.8     {d0[0]},[r2]                   @; load 1 byte (pixel x) from curr
                                                 @;  row into d0[0]
       vld1.8     {d1[0]},[r3]!                  @; load 1 byte (pixel b) from prev
@@ -573,7 +573,7 @@ avg_filter_1bpp:
       vst1.8     {d0[0]},[r2]!                  @; store 1 byte (updated pixel x)
                                                 @; increment curr row pointer
                                                 @; updated pixel x is now pixel a
-
+      beq        DONE
 
 avg_filter_1bpp_loop:
       add        r1,r1,r12                      @; loop counter += bpp
@@ -597,6 +597,9 @@ avg_filter_1bpp_loop:
       #;; AVG filter, 2 bytes per pixel
       #;; -----------------------------
 avg_filter_2bpp:
+
+      cmp        r1,r0
+
       vld1.16    {d0[0]},[r2]                   @; load 2 bytes (pixel x) from curr
                                                 @;  row into d0[0]
       vld1.16    {d1[0]},[r3]!                  @; load 2 bytes (pixel b) from prev
@@ -607,7 +610,7 @@ avg_filter_2bpp:
       vst1.16    {d0[0]},[r2]!                  @; store 2 bytes (updated pixel x)
                                                 @; increment curr row pointer
                                                 @; updated pixel x is now pixel a
-
+       beq        DONE
 
 avg_filter_2bpp_loop:
       add        r1,r1,r12                      @; loop counter += bpp
@@ -633,6 +636,9 @@ avg_filter_2bpp_loop:
       #;; AVG filter, 3 bytes per pixel
       #;; -----------------------------
 avg_filter_3bpp:
+
+      cmp        r1,r0
+
       vld1.32    {d0[0]},[r2]                   @; load 4 bytes (pixel x + 1 extra
                                                 @;  byte) from curr row into d0[0]
       vld1.32    {d1[0]},[r3],r12               @; load 4 bytes (pixel b + 1 extra
@@ -645,6 +651,8 @@ avg_filter_3bpp:
       vst1.8     {d0[2]},[r2]!                  @; store 1 byte (updated pixel x)
                                                 @; increment curr row pointer
                                                 @; updated pixel x is now pixel a
+      beq       DONE
+
 avg_filter_3bpp_loop:
       add        r1,r1,r12                      @; loop counter += bpp
       cmp        r1,r0
@@ -669,6 +677,9 @@ avg_filter_3bpp_loop:
       #;; AVG filter, 4 bytes per pixel
       #;; -----------------------------
 avg_filter_4bpp:
+
+      cmp        r1,r0
+
       vld1.32    {d0[0]},[r2]                   @; load 4 bytes (pixel x) from curr
                                                 @;  row into d0[0]
       vld1.32    {d1[0]},[r3]!                  @; load 4 bytes (pixel b) from prev
@@ -679,6 +690,8 @@ avg_filter_4bpp:
       vst1.32    {d0[0]},[r2]!                  @; store 4 bytes (updated pixel x)
                                                 @; increment curr row pointer
                                                 @; updated pixel x is now pixel a
+      beq        DONE
+
 avg_filter_4bpp_loop:
       add        r1,r1,r12                      @; loop counter += bpp
       cmp        r1,r0
@@ -701,6 +714,9 @@ avg_filter_4bpp_loop:
       #;; AVG filter, 6 bytes per pixel
       #;; -----------------------------
 avg_filter_6bpp:
+
+      cmp        r1,r0
+
       vld1.8     {d0},[r2]                      @; load 8 bytes (pixel x + 2 extra
                                                 @;  bytes) from curr row into d0
       vld1.8     {d1},[r3],r12                  @; load 8 bytes (pixel b + 2 extra
@@ -714,6 +730,8 @@ avg_filter_6bpp:
       vst1.16    {d0[2]},[r2]!                  @; store 2 bytes (updated pixel x)
                                                 @; increment curr row pointer
                                                 @; updated pixel x is now pixel a
+      beq        DONE
+
 avg_filter_6bpp_loop:
       add        r1,r1,r12                      @; loop counter += bpp
       cmp        r1,r0
@@ -738,6 +756,9 @@ avg_filter_6bpp_loop:
       #;; AVG filter, 8 bytes per pixel
       #;; -----------------------------
 avg_filter_8bpp:
+
+      cmp        r1,r0
+
       vld1.8     {d0},[r2]                      @; load 8 bytes (pixel x) from curr
                                                 @;  row into d0
       vld1.8     {d1},[r3]!                     @; load 8 bytes (pixel b) from prev
@@ -748,6 +769,7 @@ avg_filter_8bpp:
       vst1.8     {d0},[r2]!                     @; store 8 bytes (updated pixel x)
                                                 @; increment curr row pointer
                                                 @; updated pixel x is now pixel a
+      beq        DONE
 avg_filter_8bpp_loop:
       add        r1,r1,r12                      @; loop counter += bpp
       cmp        r1,r0
@@ -782,8 +804,6 @@ paeth_filter:
       #;; r3 = previous row pointer
       #;; r12 = bpp = loop/pointer increment value
 
-      cmp        r1,r0
-      beq        paeth_filter_DONE
 
       cmp        r12,#1
       beq        paeth_filter_1bpp
@@ -810,6 +830,9 @@ paeth_filter_exit:
       #;; PAETH filter, 1 byte per pixel
       #;; ------------------------------
 paeth_filter_1bpp:
+
+      cmp        r1, r0
+
       vld1.8     {d0[0]},[r2]                   @; load 1 byte (pixel x) from curr
                                                 @;  row into d0[0]
       vld1.8     {d1[0]},[r3]!                  @; load 1 byte (pixel b) from prev
@@ -818,6 +841,8 @@ paeth_filter_1bpp:
       vadd.i8    d2,d0,d1                       @; d2 = x + b = updated pixel x
       vst1.8     {d2[0]},[r2]!                  @; store 1 byte (updated pixel x)
                                                 @; increment curr row pointer
+
+      beq         paeth_filter_DONE
 
 paeth_filter_1bpp_loop:
       add        r1,r1,r12                      @; increment curr row pointer
@@ -861,6 +886,9 @@ paeth_filter_1bpp_loop:
       #;; PAETH filter, 2 bytes per pixel
       #;; -------------------------------
 paeth_filter_2bpp:
+
+      cmp        r1, r0
+
       vld1.16    {d0[0]},[r2]                   @; load 2 bytes (pixel x) from curr
                                                 @;  row into d0[0]
       vld1.16    {d1[0]},[r3]!                  @; load 2 bytes (pixel b) from prev
@@ -869,6 +897,8 @@ paeth_filter_2bpp:
       vadd.i8    d2,d0,d1                       @; d2 = x + b = updated pixel x
       vst1.16    {d2[0]},[r2]!                  @; store 2 bytes (updated pixel x)
                                                 @; increment curr row pointer
+      beq        paeth_filter_DONE
+
 paeth_filter_2bpp_loop:
       add        r1,r1,r12                      @; loop counter += bpp
       cmp        r1,r0
@@ -909,6 +939,9 @@ paeth_filter_2bpp_loop:
       #;; PAETH filter, 3 bytes per pixel
       #;; -------------------------------
 paeth_filter_3bpp:
+
+      cmp        r1, r0
+
       vld1.32    {d0[0]},[r2]                   @; load 4 bytes (pixel x + 1 extra
                                                 @;  byte) from curr row into d0[0]
       vld1.32     {d1[0]},[r3],r12              @; load 4 bytes (pixel b + 1 extra
@@ -919,6 +952,8 @@ paeth_filter_3bpp:
                                                 @; increment curr row pointer
       vst1.8     {d2[2]},[r2]!                  @; store 1 byte (updated pixel x)
                                                 @; increment curr row pointer
+      beq        paeth_filter_DONE
+
 paeth_filter_3bpp_loop:
       add        r1,r1,r12                      @; loop counter += bpp
       cmp        r1,r0
@@ -962,6 +997,9 @@ paeth_filter_3bpp_loop:
       #;; PAETH filter, 4 bytes per pixel
       #;; -------------------------------
 paeth_filter_4bpp:
+
+     cmp        r1, r0
+
      vld1.32    {d0[0]},[r2]                    @; load 4 bytes (pixel x) from curr
                                                 @;  row into d0[0]
      vld1.32    {d1[0]},[r3]!                   @; load 4 bytes (pixel b) from prev
@@ -970,6 +1008,8 @@ paeth_filter_4bpp:
      vadd.i8    d2,d0,d1                        @; d2 = x + b = updated pixel x
      vst1.32    {d2[0]},[r2]!                   @; store 4 bytes (updated pixel x)
                                                 @; increment curr row pointer
+     beq        paeth_filter_DONE
+
 paeth_filter_4bpp_loop:
      add        r1,r1,r12                       @; loop counter += bpp
      cmp        r1,r0
@@ -1011,6 +1051,8 @@ paeth_filter_4bpp_loop:
      #;; PAETH filter, 6 bytes per pixel
      #;; -------------------------------
 paeth_filter_6bpp:
+     cmp        r1, r0
+
      vld1.8     {d0},[r2]                       @; load 8 bytes (pixel x + 2 extra
                                                 @;  bytes) from curr row into d0
      vld1.8     {d1},[r3],r12                   @; load 8 bytes (pixel b + 2 extra
@@ -1021,6 +1063,8 @@ paeth_filter_6bpp:
                                                 @; increment curr row pointer
      vst1.16    {d2[2]},[r2]!                   @; store 2 bytes (updated pixel x)
                                                 @; increment curr row pointer
+     beq        paeth_filter_DONE
+
 paeth_filter_6bpp_loop:
      add        r1,r1,r12                       @; loop counter += bpp
      cmp        r1,r0
@@ -1064,6 +1108,8 @@ paeth_filter_6bpp_loop:
      #;; PAETH filter, 8 bytes per pixel
      #;; -------------------------------
 paeth_filter_8bpp:
+    cmp        r1, r0
+
     vld1.8     {d0},[r2]                        @; load 8 bytes (pixel x) from curr
                                                 @;  row into d0
     vld1.8     {d1},[r3]!                       @; load 8 bytes (pixel b) from prev
@@ -1072,6 +1118,8 @@ paeth_filter_8bpp:
     vadd.i8    d2,d0,d1                         @; d2 = x + b = updated pixel x
     vst1.8     {d2},[r2]!                       @; store 8 bytes (updated pixel x)
                                                 @; increment curr row pointer
+    beq        paeth_filter_DONE
+
 paeth_filter_8bpp_loop:
     add        r1,r1,r12                        @; loop counter += bpp
     cmp        r1,r0
