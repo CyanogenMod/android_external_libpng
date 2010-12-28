@@ -3,6 +3,7 @@
  *
  * Last changed in libpng 1.2.45 [July 7, 2011]
  * Copyright (c) 1998-2011 Glenn Randers-Pehrson
+ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
  * (Version 0.96 Copyright (c) 1996, 1997 Andreas Dilger)
  * (Version 0.88 Copyright (c) 1995, 1996 Guy Eric Schalnat, Group 42, Inc.)
  *
@@ -21,6 +22,10 @@
 
 #if defined(_WIN32_WCE) && (_WIN32_WCE<0x500)
 #  define WIN32_WCE_OLD
+#endif
+
+#if defined(__ARM_HAVE_NEON)
+extern void png_read_filter_row_neon(png_uint_32 rowbytes, png_byte pixel_depth, png_bytep row, png_bytep prev_row, int filter);
 #endif
 
 #ifdef PNG_FLOATING_POINT_SUPPORTED
@@ -2953,6 +2958,10 @@ png_read_filter_row(png_structp png_ptr, png_row_infop row_info, png_bytep row,
 {
    png_debug(1, "in png_read_filter_row");
    png_debug2(2, "row = %lu, filter = %d", png_ptr->row_number, filter);
+
+#if defined(__ARM_HAVE_NEON)
+   png_read_filter_row_neon(row_info->rowbytes, row_info->pixel_depth, row, prev_row, filter);
+#else
    switch (filter)
    {
       case PNG_FILTER_VALUE_NONE:
@@ -3046,16 +3055,6 @@ png_read_filter_row(png_structp png_ptr, png_row_infop row_info, png_bytep row,
             pb = pc < 0 ? -pc : pc;
             pc = (p + pc) < 0 ? -(p + pc) : p + pc;
 #endif
-
-            /*
-               if (pa <= pb && pa <= pc)
-                  p = a;
-               else if (pb <= pc)
-                  p = b;
-               else
-                  p = c;
-             */
-
             p = (pa <= pb && pa <= pc) ? a : (pb <= pc) ? b : c;
 
             *rp = (png_byte)(((int)(*rp) + p) & 0xff);
@@ -3068,6 +3067,7 @@ png_read_filter_row(png_structp png_ptr, png_row_infop row_info, png_bytep row,
          *row = 0;
          break;
    }
+#endif
 }
 
 #ifdef PNG_INDEX_SUPPORTED
