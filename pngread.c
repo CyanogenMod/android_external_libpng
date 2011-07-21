@@ -753,7 +753,6 @@ png_read_row(png_structp png_ptr, png_bytep row, png_bytep dsp_row)
 #endif
                png_crc_finish(png_ptr, 0);
 
-
             png_ptr->idat_size = png_read_chunk_header(png_ptr);
             if (png_memcmp(png_ptr->chunk_name, png_IDAT, 4))
                png_error(png_ptr, "Not enough image data");
@@ -930,7 +929,6 @@ png_set_read_offset(png_structp png_ptr,
    png_seek_data(png_ptr, idat_position + IDAT_HEADER_SIZE + png_ptr->idat_size - bytes_left);
    png_ptr->idat_size = bytes_left;
 }
-
 /* Configure png decoder to decode the pass starting from *row.
  * The requested row may be adjusted to align with an indexing row.
  * The actual row for the decoder to start its decoding will be returned in

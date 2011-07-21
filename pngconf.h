@@ -1,8 +1,8 @@
 
 /* pngconf.h - machine configurable file for libpng
  *
- * libpng version 1.2.44 - June 26, 2010
- * Copyright (c) 1998-2010 Glenn Randers-Pehrson
+ * libpng version 1.2.46 - July 9, 2011
+ * Copyright (c) 1998-2011 Glenn Randers-Pehrson
  * (Version 0.96 Copyright (c) 1996, 1997 Andreas Dilger)
  * (Version 0.88 Copyright (c) 1995, 1996 Guy Eric Schalnat, Group 42, Inc.)
  *
@@ -1509,7 +1509,11 @@ typedef z_stream FAR *  png_zstreamp;
 #  define PNGAPI
 #endif
 #ifndef PNG_IMPEXP
-#  define PNG_IMPEXP
+#  if ((__GNUC__-0) * 10 + __GNUC_MINOR__-0 >= 33)
+#    define PNG_IMPEXP  __attribute__((visibility ("default")))
+#  else
+#    define PNG_IMPEXP
+#  endif
 #endif
 
 #ifdef PNG_BUILDSYMS
