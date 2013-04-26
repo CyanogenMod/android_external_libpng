@@ -74,6 +74,11 @@ include $(BUILD_STATIC_LIBRARY)
 # For the device (shared)
 # =====================================================
 
+ifeq ($(ARCH_ARM_HAVE_NEON),true)
+   common_SRC_FILES += contrib/pngneon/png_read_filter_row_neon.s
+   common_CFLAGS += -D__ARM_HAVE_NEON
+endif
+
 include $(CLEAR_VARS)
 LOCAL_CLANG := true
 LOCAL_SRC_FILES := $(common_SRC_FILES)
