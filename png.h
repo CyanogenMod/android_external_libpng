@@ -468,6 +468,9 @@
 #ifndef PNG_H
 #define PNG_H
 
+/* This is used to quiet the compiler for unused variables */
+#define UNUSED(x) (void)(x);
+
 /* This is not the place to learn how to use libpng.  The file libpng.txt
  * describes how to use libpng, and the file example.c summarizes it
  * with some code on which to build.  This file is useful for looking
