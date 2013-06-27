@@ -348,7 +348,7 @@ png_default_warning(png_structp png_ptr, png_const_charp warning_message)
 #else
    warning_message = warning_message; /* Make compiler happy */
 #endif
-   png_ptr = png_ptr; /* Make compiler happy */
+   UNUSED(png_ptr); /* Make compiler happy */
 }
 #endif /* PNG_WARNINGS_SUPPORTED */
 

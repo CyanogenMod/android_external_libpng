@@ -1184,7 +1184,7 @@ png_set_asm_flags (png_structp png_ptr, png_uint_32 asm_flags)
 /* Obsolete as of libpng-1.2.20 and will be removed from libpng-1.4.0 */
     if (png_ptr != NULL)
     png_ptr->asm_flags = 0;
-    asm_flags = asm_flags; /* Quiet the compiler */
+    UNUSED(asm_flags); /* Quiet the compiler */
 }
 
 /* This function was added to libpng 1.2.0 */
@@ -1197,8 +1197,8 @@ png_set_mmx_thresholds (png_structp png_ptr,
     if (png_ptr == NULL)
        return;
     /* Quiet the compiler */
-    mmx_bitdepth_threshold = mmx_bitdepth_threshold;
-    mmx_rowbytes_threshold = mmx_rowbytes_threshold;
+    UNUSED(mmx_bitdepth_threshold);
+    UNUSED(mmx_rowbytes_threshold);
 }
 #endif /* ?PNG_ASSEMBLER_CODE_SUPPORTED */
 

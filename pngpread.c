@@ -1209,7 +1209,7 @@ png_push_handle_tEXt(png_structp png_ptr, png_infop info_ptr, png_uint_32
    if (!(png_ptr->mode & PNG_HAVE_IHDR) || (png_ptr->mode & PNG_HAVE_IEND))
       {
          png_error(png_ptr, "Out of place tEXt");
-         info_ptr = info_ptr; /* To quiet some compiler warnings */
+         UNUSED(info_ptr); /* To quiet some compiler warnings */
       }
 
 #ifdef PNG_MAX_MALLOC_64K
@@ -1307,7 +1307,7 @@ png_push_handle_zTXt(png_structp png_ptr, png_infop info_ptr, png_uint_32
    if (!(png_ptr->mode & PNG_HAVE_IHDR) || (png_ptr->mode & PNG_HAVE_IEND))
       {
          png_error(png_ptr, "Out of place zTXt");
-         info_ptr = info_ptr; /* To quiet some compiler warnings */
+         UNUSED(info_ptr); /* To quiet some compiler warnings */
       }
 
 #ifdef PNG_MAX_MALLOC_64K
@@ -1643,7 +1643,7 @@ png_push_handle_unknown(png_structp png_ptr, png_infop info_ptr, png_uint_32
 #endif
          png_chunk_error(png_ptr, "unknown critical chunk");
 
-      info_ptr = info_ptr; /* To quiet some compiler warnings */
+      UNUSED(info_ptr); /* To quiet some compiler warnings */
    }
 
 #ifdef PNG_READ_UNKNOWN_CHUNKS_SUPPORTED

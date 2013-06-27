@@ -1699,8 +1699,8 @@ png_read_png(png_structp png_ptr, png_infop info_ptr,
    /* Read rest of file, and get additional chunks in info_ptr - REQUIRED */
    png_read_end(png_ptr, info_ptr);
 
-   transforms = transforms; /* Quiet compiler warnings */
-   params = params;
+   UNUSED(transforms); /* Quiet compiler warnings */
+   UNUSED(params);
 
 }
 #endif /* PNG_INFO_IMAGE_SUPPORTED */
