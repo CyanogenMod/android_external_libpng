@@ -494,6 +494,31 @@ png_zlib_inflate(png_structrp png_ptr, int flush)
 }
 #endif /* Zlib >= 1.2.4 */
 
+#if PNG_ZLIB_VERNUM >= 0x1240
+/* Handle the start of the inflate stream if we called inflateInit2(strm,0);
+ * in this case some zlib versions skip validation of the CINFO field and, in
+ * certain circumstances, libpng may end up displaying an invalid image, in
+ * contrast to implementations that call zlib in the normal way (e.g. libpng
+ * 1.5).
+ */
+int /* PRIVATE */
+png_zlib_inflate(png_structrp png_ptr, int flush)
+{
+   if (png_ptr->zstream_start && png_ptr->zstream.avail_in > 0)
+   {
+      if ((*png_ptr->zstream.next_in >> 4) > 7)
+      {
+         png_ptr->zstream.msg = "invalid window size (libpng)";
+         return Z_DATA_ERROR;
+      }
+
+      png_ptr->zstream_start = 0;
+   }
+
+   return inflate(&png_ptr->zstream, flush);
+}
+#endif /* Zlib >= 1.2.4 */
+
 #ifdef PNG_READ_COMPRESSED_TEXT_SUPPORTED
 /* png_inflate now returns zlib error codes including Z_OK and Z_STREAM_END to
  * allow the caller to do multiple calls if required.  If the 'finish' flag is
@@ -4136,12 +4161,11 @@ png_read_IDAT_data(png_structrp png_ptr, png_bytep output,
 
       if (ret != Z_OK) {
 #ifdef PNG_INDEX_SUPPORTED
-         if (png_ptr->index) {
-            if (png_ptr->row_number != png_ptr->height - 1) {
-               png_error(png_ptr, png_ptr->zstream.msg ?
-                   png_ptr->zstream.msg : "Decompression error");
-            }
-         } else
+        if (png_ptr->index) {
+          if (png_ptr->row_number != png_ptr->height - 1) {
+            png_error(png_ptr, png_ptr->zstream.msg ? png_ptr->zstream.msg : "Decompression error");
+          }
+        } else
 #endif
       {
          png_zstream_error(png_ptr, ret);
